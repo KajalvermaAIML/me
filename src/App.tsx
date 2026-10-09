@@ -6,6 +6,7 @@ import { CustomizerPanel } from './components/CustomizerPanel';
 import { CodeViewer } from './components/CodeViewer';
 import type { BallpitRef } from './components/Ballpit';
 import { ExternalLink, Terminal } from 'lucide-react';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './App.css';
 
 const DEFAULT_SETTINGS: BallpitSettings = {
@@ -116,15 +117,17 @@ export default function App() {
           </div>
 
           {/* Interactive Preview or Code Section */}
-          <PreviewStage
-            settings={settings}
-            activeViewTab={activeViewTab}
-            onChangeViewTab={setActiveViewTab}
-            ballpitRef={ballpitRef}
-            onReset={handleResetSimulation}
-            onCopyAI={handleCopyAI}
-            copiedAI={copiedAI}
-          />
+          <ErrorBoundary>
+            <PreviewStage
+              settings={settings}
+              activeViewTab={activeViewTab}
+              onChangeViewTab={setActiveViewTab}
+              ballpitRef={ballpitRef}
+              onReset={handleResetSimulation}
+              onCopyAI={handleCopyAI}
+              copiedAI={copiedAI}
+            />
+          </ErrorBoundary>
 
           {/* If Code Tab is active, display the Code Viewer directly */}
           {activeViewTab === 'code' ? (

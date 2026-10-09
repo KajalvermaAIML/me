@@ -13,6 +13,7 @@ import {
   Check
 } from 'lucide-react';
 import Ballpit, { type BallpitRef } from './Ballpit';
+import { ErrorBoundary } from './ErrorBoundary';
 
 export interface BallpitSettings {
   count: number;
@@ -230,18 +231,20 @@ export const PreviewStage: React.FC<PreviewStageProps> = ({
             </div>
 
             {/* Live 3D Physics Canvas */}
-            <Ballpit
-              ref={ballpitRef}
-              count={settings.count}
-              gravity={settings.gravity}
-              friction={settings.friction}
-              wallBounce={settings.wallBounce}
-              followCursor={settings.followCursor}
-              colors={settings.colors}
-              minSize={settings.minSize}
-              maxSize={settings.maxSize}
-              maxVelocity={settings.maxVelocity}
-            />
+            <ErrorBoundary>
+              <Ballpit
+                ref={ballpitRef}
+                count={settings.count}
+                gravity={settings.gravity}
+                friction={settings.friction}
+                wallBounce={settings.wallBounce}
+                followCursor={settings.followCursor}
+                colors={settings.colors}
+                minSize={settings.minSize}
+                maxSize={settings.maxSize}
+                maxVelocity={settings.maxVelocity}
+              />
+            </ErrorBoundary>
 
             {/* Bottom Right Demo Content Toggle */}
             <div className="rb-demo-toggle-wrap">

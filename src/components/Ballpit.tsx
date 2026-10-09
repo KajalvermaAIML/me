@@ -117,12 +117,22 @@ class X {
       console.error('Three: Missing canvas or id parameter');
     }
     this.canvas.style.display = 'block';
+
     const rendererOptions: WebGLRendererParameters = {
       canvas: this.canvas,
-      powerPreference: 'high-performance',
+      antialias: true,
+      alpha: true,
+      powerPreference: 'default',
       ...(this.#config.rendererOptions ?? {})
     };
-    this.renderer = new WebGLRenderer(rendererOptions);
+
+    try {
+      this.renderer = new WebGLRenderer(rendererOptions);
+    } catch (e) {
+      console.warn('WebGLRenderer init failed with options, trying basic fallback:', e);
+      this.renderer = new WebGLRenderer({ canvas: this.canvas, alpha: true });
+    }
+
     this.renderer.outputColorSpace = SRGBColorSpace;
   }
 
@@ -282,8 +292,7 @@ class X {
     this.#timer.dispose();
     this.clear();
     this.#postprocessing?.dispose();
-    this.renderer.dispose();
-    this.renderer.forceContextLoss();
+    this.renderer?.dispose();
     this.isDisposed = true;
   }
 
@@ -472,7 +481,7 @@ class Y extends MeshPhysicalMaterial {
           vec3 scatteringHalf = normalize(directLight.direction + (geometryNormal * thicknessDistortion));
           float scatteringDot = pow(saturate(dot(geometryViewDir, -scatteringHalf)), thicknessPower) * thicknessScale;
           #ifdef USE_COLOR
-            vec3 scatteringIllu = (scatteringDot + thicknessAmbient) * vColor;
+            vec3 scatteringIllu = (scatteringDot + thicknessAmbient) * vColor.rgb;
           #else
             vec3 scatteringIllu = (scatteringDot + thicknessAmbient) * diffuse;
           #endif
@@ -699,6 +708,8 @@ class Z extends InstancedMesh {
     const roomEnv = new RoomEnvironment();
     const pmrem = new PMREMGenerator(renderer);
     const envTexture = pmrem.fromScene(roomEnv).texture;
+    pmrem.dispose();
+
     const geometry = new SphereGeometry();
     const material = new Y({ envMap: envTexture, ...config.materialParams });
     material.envMapRotation.x = -Math.PI / 2;
@@ -805,11 +816,15 @@ function createBallpit(canvas: HTMLCanvasElement, config: any = {}): CreateBallp
       raycaster.setFromCamera(pointerData.nPosition, threeInstance.camera);
       threeInstance.camera.getWorldDirection(plane.normal);
       raycaster.ray.intersectPlane(plane, intersectionPoint);
-      spheres.physics.center.copy(intersectionPoint);
-      spheres.config.controlSphere0 = true;
+      if (spheres) {
+        spheres.physics.center.copy(intersectionPoint);
+        spheres.config.controlSphere0 = true;
+      }
     },
     onLeave() {
-      spheres.config.controlSphere0 = false;
+      if (spheres) {
+        spheres.config.controlSphere0 = false;
+      }
     }
   });
 
@@ -842,6 +857,7 @@ function createBallpit(canvas: HTMLCanvasElement, config: any = {}): CreateBallp
       initialize({ ...spheres.config, count });
     },
     updateConfig(newProps: { [key: string]: any }) {
+      if (!spheres) return;
       if (newProps.count !== undefined && newProps.count !== spheres.config.count) {
         initialize({ ...spheres.config, ...newProps });
       } else {
@@ -902,7 +918,7 @@ const Ballpit = forwardRef<BallpitRef, BallpitProps>(({
   followCursor = false,
   ...props
 }, ref) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const spheresInstanceRef = useRef<CreateBallpitReturn | null>(null);
   const isFirstRender = useRef(true);
 
@@ -916,18 +932,36 @@ const Ballpit = forwardRef<BallpitRef, BallpitProps>(({
   }));
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    spheresInstanceRef.current = createBallpit(canvas, {
-      followCursor,
-      ...props
-    });
+    // Create a pristine canvas element to ensure no context loss artifacts
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    container.appendChild(canvas);
+
+    try {
+      spheresInstanceRef.current = createBallpit(canvas, {
+        followCursor,
+        ...props
+      });
+    } catch (err) {
+      console.error('Failed to initialize Ballpit WebGL:', err);
+    }
 
     return () => {
       if (spheresInstanceRef.current) {
-        spheresInstanceRef.current.dispose();
+        try {
+          spheresInstanceRef.current.dispose();
+        } catch (e) {
+          console.warn('Error during Ballpit dispose:', e);
+        }
         spheresInstanceRef.current = null;
+      }
+      if (canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -944,10 +978,10 @@ const Ballpit = forwardRef<BallpitRef, BallpitProps>(({
   }, [props, followCursor]);
 
   return (
-    <canvas
+    <div
       className={className}
-      ref={canvasRef}
-      style={{ width: '100%', height: '100%', display: 'block', ...style }}
+      ref={containerRef}
+      style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden', ...style }}
     />
   );
 });
