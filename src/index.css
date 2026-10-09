@@ -2,13 +2,37 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
 
-  /* Dark Theme Tokens (Default) */
+  /* Bright / Light Theme Tokens (Default) */
+  --bg-primary: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f4f4f5;
+  --bg-elevated: #e4e4e7;
+  --bg-glass: rgba(255, 255, 255, 0.94);
+  
+  --border-subtle: #e4e4e7;
+  --border-medium: #d4d4d8;
+  --border-strong: #a1a1aa;
+
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+
+  --accent-purple: #7c3aed;
+  --accent-purple-glow: rgba(124, 58, 237, 0.15);
+  --accent-purple-hover: #6d28d9;
+  
+  --code-bg: #111114;
+  --shadow-card: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+  --shadow-glow: 0 0 25px rgba(124, 58, 237, 0.15);
+}
+
+.rb-app.dark {
   --bg-primary: #09090b;
   --bg-secondary: #121215;
   --bg-tertiary: #18181b;
   --bg-elevated: #27272a;
-  --bg-glass: rgba(18, 18, 21, 0.75);
-  
+  --bg-glass: rgba(18, 18, 21, 0.85);
+
   --border-subtle: #27272a;
   --border-medium: #3f3f46;
   --border-strong: #52525b;
@@ -20,30 +44,10 @@
   --accent-purple: #8b5cf6;
   --accent-purple-glow: rgba(139, 92, 246, 0.25);
   --accent-purple-hover: #7c3aed;
-  
+
   --code-bg: #111114;
   --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 25px rgba(139, 92, 246, 0.2);
-}
-
-.rb-app.light {
-  --bg-primary: #f8fafc;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f1f5f9;
-  --bg-elevated: #e2e8f0;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-
-  --border-subtle: #e2e8f0;
-  --border-medium: #cbd5e1;
-  --border-strong: #94a3b8;
-
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-
-  --code-bg: #f8fafc;
-  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-  --shadow-glow: 0 0 25px rgba(139, 92, 246, 0.15);
 }
 
 * {

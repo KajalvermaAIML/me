@@ -21,7 +21,7 @@ const DEFAULT_SETTINGS: BallpitSettings = {
 };
 
 export default function App() {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [activeComponentId, setActiveComponentId] = useState<string>('ballpit');
   const [activeViewTab, setActiveViewTab] = useState<'preview' | 'code'>('preview');
   const [settings, setSettings] = useState<BallpitSettings>(DEFAULT_SETTINGS);
